@@ -1,0 +1,47 @@
+{
+  "name": "@gentsagency/configure-craft-env",
+  "version": "0.0.1",
+  "description": "One-off runner to add a Craft site to your development environment",
+  "bin": "index.js",
+  "main": "index.js",
+  "eslintConfig": {
+    "extends": "@gentsagency/eslint-config",
+    "env": {
+      "browser": false,
+      "node": true,
+      "es6": true
+    },
+    "rules": {
+      "no-console": 0
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --fix index.js; exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gentsagency/configure-craft-env.git"
+  },
+  "keywords": [
+    "craft",
+    "craft-cms",
+    "homestead"
+  ],
+  "author": "Pieter Beulque <pieterbeulque@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gentsagency/configure-craft-env/issues"
+  },
+  "homepage": "https://github.com/gentsagency/configure-craft-env#readme",
+  "dependencies": {
+    "fs-extra": "^6.0.1",
+    "js-yaml": "^3.12.0",
+    "minimist": "^1.2.0"
+  },
+  "devDependencies": {
+    "@gentsagency/eslint-config": "^1.0.1",
+    "eslint": "^4.19.1",
+    "eslint-plugin-import": "^2.12.0"
+  }
+}
