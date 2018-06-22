@@ -150,6 +150,19 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 		'DB_DATABASE=""': `DB_DATABASE="${project}"`,
 	});
 
+	const dotenvsh = path.resolve(process.cwd(), './scripts/.env.sh');
+	await fs.copy(path.resolve(process.cwd(), './scripts/craft3-example.env.sh'), dotenvsh);
+	await replaceInFile(dotenvsh, {
+		'GLOBAL_CRAFT_PATH="./"': 'GLOBAL_CRAFT_PATH="./craft/"',
+		'LOCAL_ROOT_PATH="REPLACE_ME"': `LOCAL_ROOT_PATH="${process.cwd()}/"`,
+		// eslint-disable-next-line
+		'LOCAL_ASSETS_PATH=${LOCAL_ROOT_PATH}"REPLACE_ME"': 'LOCAL_ASSETS_PATH=\${LOCAL_ROOT_PATH}"files/"',
+		'LOCAL_DB_NAME="REPLACE_ME"': `LOCAL_DB_NAME="${project}"`,
+		'LOCAL_DB_PASSWORD="REPLACE_ME"': 'LOCAL_DB_PASSWORD="secret"',
+		'LOCAL_DB_USER="REPLACE_ME"': 'LOCAL_DB_USER="homestead"',
+		'LOCAL_DB_HOST="localhost"': `LOCAL_DB_HOST="${parsed.ip}"`,
+	});
+
 	if (!securityKey) {
 		console.log('🔑 Generating security key');
 		console.log('');
