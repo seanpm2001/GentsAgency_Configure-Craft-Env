@@ -135,7 +135,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 	console.log('');
 	const sslPath = path.resolve(homesteadPath, '../.ssl');
 	await fs.ensureDir(sslPath);
-	await run(`vagrant ssh -- -t "cp /etc/nginx/ssl/${localDomain}.crt /home/vagrant/homestead/.ssl/"`, { cwd: homesteadPath });
+	await run(`vagrant ssh -- -t "cp /etc/nginx/ssl/${localDomain}.crt /home/vagrant/homestead/.ssl/${localDomain}.crt"`, { cwd: homesteadPath });
 	await run(`sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "${sslPath}/${localDomain}.crt"`);
 
 	console.log('🍱 Creating .env files');
