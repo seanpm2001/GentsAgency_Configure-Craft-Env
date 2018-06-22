@@ -90,24 +90,37 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 	const config = await readFile(`${homesteadPath}/Homestead.yaml`);
 	const parsed = yaml.safeLoad(config);
 
-	parsed.folders.push({
-		map: process.cwd(),
-		to: `/home/vagrant/homestead/${project}`,
-		type: 'nfs',
-	});
+	if (!parsed.folders) {
+		parsed.folders = [];
+	}
 
-	// @todo - Avoid duplicates
+	if (!parsed.folders.find((folder) => folder.map === process.cwd())) {
+		parsed.folders.push({
+			map: process.cwd(),
+			to: `/home/vagrant/homestead/${project}`,
+			type: 'nfs',
+		});
+	}
 
-	parsed.sites.push({
-		map: localDomain,
-		to: `/home/vagrant/homestead/${project}/www`,
-	});
+	if (!parsed.sites) {
+		parsed.sites = [];
+	}
 
-	// @todo - Avoid duplicates
+	if (!parsed.sites.find((site) => site.map === localDomain)) {
+		parsed.sites.push({
+			map: localDomain,
+			to: `/home/vagrant/homestead/${project}/www`,
+		});
+	}
 
-	parsed.databases.push(project);
+	if (!parsed.databases) {
+		parsed.databases = [];
+	}
 
-	// @todo - Avoid duplicates
+	if (!parsed.databases.find((database) => database === project)) {
+		parsed.databases.push(project);
+	}
+
 	await fs.outputFile(`${homesteadPath}/Homestead.yaml`, yaml.safeDump(parsed));
 
 	console.log('📒 Updating /etc/hosts file');
