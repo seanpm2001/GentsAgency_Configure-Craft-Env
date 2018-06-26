@@ -135,7 +135,12 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 
 	console.log('📒 Updating /etc/hosts file');
 	console.log('');
-	await fs.appendFile('/etc/hosts', `${parsed.ip} ${localDomain}\r\n`);
+
+	try {
+		await fs.appendFile('/etc/hosts', `${parsed.ip} ${localDomain}\r\n`);
+	} catch (err) {
+		await run(`echo "${parsed.ip} ${localDomain}" | sudo tee -a /etc/hosts`);
+	}
 
 	console.log('🏁 Provisioning Homestead');
 	console.log('');
