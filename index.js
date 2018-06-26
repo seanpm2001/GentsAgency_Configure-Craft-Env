@@ -86,7 +86,6 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 
 	console.log('🚜 Configuring Homestead');
 	console.log('');
-	await run(`vagrant ssh -- -t "echo '127.0.0.1 ${localDomain}' | sudo tee -a /etc/hosts"`, { cwd: homesteadPath });
 	const config = await readFile(`${homesteadPath}/Homestead.yaml`);
 	const parsed = yaml.safeLoad(config);
 
@@ -130,6 +129,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 	console.log('🏁 Provisioning Homestead');
 	console.log('');
 	await run('vagrant up --provision', { cwd: homesteadPath });
+	await run(`vagrant ssh -- -t "echo '127.0.0.1 ${localDomain}' | sudo tee -a /etc/hosts"`, { cwd: homesteadPath });
 
 	console.log('🔐 Copying SSL certificate (this might ask for your password)');
 	console.log('');
