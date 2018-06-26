@@ -39,6 +39,7 @@ const run = (cmd, options = { cwd: process.cwd() }) => new Promise((resolve, rej
 
 const localDomain = `${project}.local`;
 const homesteadPath = '/Users/pieterbeulque/homestead/Homestead';
+const sslPath = '/Users/pieterbeulque/.homesteadssl';
 
 const readFile = (file) => new Promise((resolve, reject) => {
 	fs.readFile(file, 'utf8', (readErr, data) => {
@@ -101,6 +102,14 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 		});
 	}
 
+	if (!parsed.folders.find((folder) => folder.map === sslPath)) {
+		parsed.folders.push({
+			map: sslPath,
+			to: '/home/vagrant/.homesteadssl',
+			type: 'nfs',
+		});
+	}
+
 	if (!parsed.sites) {
 		parsed.sites = [];
 	}
@@ -128,14 +137,13 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 
 	console.log('🏁 Provisioning Homestead');
 	console.log('');
-	await run('vagrant up --provision', { cwd: homesteadPath });
+	await run('vagrant reload --provision', { cwd: homesteadPath });
 	await run(`vagrant ssh -- -t "echo '127.0.0.1 ${localDomain}' | sudo tee -a /etc/hosts"`, { cwd: homesteadPath });
 
 	console.log('🔐 Copying SSL certificate (this might ask for your password)');
 	console.log('');
-	const sslPath = path.resolve(homesteadPath, '../.ssl');
 	await fs.ensureDir(sslPath);
-	await run(`vagrant ssh -- -t "cp /etc/nginx/ssl/${localDomain}.crt /home/vagrant/homestead/.ssl/${localDomain}.crt"`, { cwd: homesteadPath });
+	await run(`vagrant ssh -- -t "mkdir -p /home/vagrant/.homesteadssl && cp /etc/nginx/ssl/${localDomain}.crt /home/vagrant/.homesteadssl/${localDomain}.crt"`, { cwd: homesteadPath });
 	await run(`sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "${sslPath}/${localDomain}.crt"`);
 
 	console.log('🍱 Creating .env files');
