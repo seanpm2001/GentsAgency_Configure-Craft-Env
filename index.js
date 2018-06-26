@@ -12,8 +12,6 @@ const directory = path.basename(process.cwd());
 
 const argv = minimist(process.argv.slice(2));
 
-const securityKey = argv['security-key'];
-
 const project = (() => {
 	try {
 		// eslint-disable-next-line
@@ -39,9 +37,10 @@ const run = (cmd, options = { cwd: process.cwd() }) => new Promise((resolve, rej
 	});
 });
 
-const localDomain = `${project}.local`;
-const homesteadPath = `${homedir}/homestead/Homestead`;
-const sslPath = `${homedir}/.homesteadssl`;
+const securityKey = argv['security-key'];
+const localDomain = typeof argv.domain === 'string' ? argv.domain : `${project}.local`;
+const homesteadPath = typeof argv['homestead-path'] === 'string' ? argv['homestead-path'] : `${homedir}/homestead/Homestead`;
+const sslPath = typeof argv['ssl-path'] === 'string' ? argv['ssl-path'] : `${homedir}/.homesteadssl`;
 
 const readFile = (file) => new Promise((resolve, reject) => {
 	fs.readFile(file, 'utf8', (readErr, data) => {
@@ -70,7 +69,6 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 		});
 	});
 });
-
 
 (async function configureCraftEnv() {
 	console.clear();
