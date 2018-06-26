@@ -6,6 +6,8 @@ const path = require('path');
 const yaml = require('js-yaml');
 const minimist = require('minimist');
 
+const homedir = require('os').homedir();
+
 const directory = path.basename(process.cwd());
 
 const argv = minimist(process.argv.slice(2));
@@ -38,8 +40,8 @@ const run = (cmd, options = { cwd: process.cwd() }) => new Promise((resolve, rej
 });
 
 const localDomain = `${project}.local`;
-const homesteadPath = '/Users/pieterbeulque/homestead/Homestead';
-const sslPath = '/Users/pieterbeulque/.homesteadssl';
+const homesteadPath = `${homedir}/homestead/Homestead`;
+const sslPath = `${homedir}/.homesteadssl`;
 
 const readFile = (file) => new Promise((resolve, reject) => {
 	fs.readFile(file, 'utf8', (readErr, data) => {
