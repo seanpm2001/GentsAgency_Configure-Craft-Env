@@ -44,6 +44,8 @@ const sslPath = typeof argv['ssl-path'] === 'string' ? argv['ssl-path'] : `${hom
 
 const databasePrefix = typeof argv['db-prefix'] === 'string' ? argv['db-prefix'] : undefined;
 
+const ssh = typeof argv['remote-ssh'] === 'string' ? argv['remote-ssh'] : undefined;
+
 const remoteDatabase = (() => {
 	if (typeof argv['remote-db-user'] !== 'string') {
 		return undefined;
@@ -225,6 +227,22 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 			'LOCAL_DB_HOST="localhost"': `LOCAL_DB_HOST="${parsed.ip}"`,
 		};
 
+		if (databasePrefix) {
+			Object.assign(replacements, {
+				'GLOBAL_DB_TABLE_PREFIX=""': `GLOBAL_DB_TABLE_PREFIX="${databasePrefix}_"`,
+			});
+		}
+
+		if (ssh) {
+			Object.assign(replacements, {
+				'REMOTE_SSH_LOGIN="REPLACE_ME"': `REMOTE_SSH_LOGIN="${ssh}"`,
+			});
+		} else {
+			Object.assign(replacements, {
+				'REMOTE_DB_USING_SSH="yes"': 'REMOTE_DB_USING_SSH="no"',
+			});
+		}
+
 		if (remoteDatabase) {
 			Object.assign(replacements, {
 				'REMOTE_DB_NAME="REPLACE_ME"': `REMOTE_DB_NAME="${remoteDatabase.name}"`,
@@ -233,12 +251,6 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 				'REMOTE_DB_HOST="localhost"': `REMOTE_DB_HOST="${remoteDatabase.host}"`,
 				'REMOTE_DB_PORT="3306"': `REMOTE_DB_PORT="${remoteDatabase.port}"`,
 				'REMOTE_DB_SCHEMA="public"': `REMOTE_DB_SCHEMA="${remoteDatabase.schema}"`,
-			});
-		}
-
-		if (databasePrefix) {
-			Object.assign(replacements, {
-				'GLOBAL_DB_TABLE_PREFIX=""': `GLOBAL_DB_TABLE_PREFIX="${databasePrefix}_"`,
 			});
 		}
 
