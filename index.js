@@ -42,6 +42,8 @@ const localDomain = typeof argv.domain === 'string' ? argv.domain : `${project}.
 const homesteadPath = typeof argv['homestead-path'] === 'string' ? argv['homestead-path'] : `${homedir}/homestead/Homestead`;
 const sslPath = typeof argv['ssl-path'] === 'string' ? argv['ssl-path'] : `${homedir}/.homesteadssl`;
 
+const databasePrefix = typeof argv['db-prefix'] === 'string' ? argv['db-prefix'] : undefined;
+
 const remoteDatabase = (() => {
 	if (typeof argv['remote-db-user'] !== 'string') {
 		return undefined;
@@ -186,6 +188,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 			'DB_USER="root"': 'DB_USER="homestead"',
 			'DB_PASSWORD=""': 'DB_PASSWORD="secret"',
 			'DB_DATABASE=""': `DB_DATABASE="${project}"`,
+			'DB_TABLE_PREFIX=""': `DB_PREFIX="${databasePrefix || ''}"`,
 		});
 	} catch (error) {
 		console.log(`	Could not create ./craft/.env at ${dotenv}`);
@@ -216,6 +219,12 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 				'REMOTE_DB_HOST="localhost"': `REMOTE_DB_HOST="${remoteDatabase.host}"`,
 				'REMOTE_DB_PORT="3306"': `REMOTE_DB_PORT="${remoteDatabase.port}"`,
 				'REMOTE_DB_SCHEMA="public"': `REMOTE_DB_SCHEMA="${remoteDatabase.schema}"`,
+			});
+		}
+
+		if (databasePrefix) {
+			Object.assign(replacements, {
+				'GLOBAL_DB_TABLE_PREFIX=""': `GLOBAL_DB_TABLE_PREFIX="${databasePrefix}_"`,
 			});
 		}
 
