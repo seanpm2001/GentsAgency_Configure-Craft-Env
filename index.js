@@ -257,7 +257,8 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 		if (remotePath) {
 			Object.assign(replacements, {
 				'REMOTE_ROOT_PATH="REPLACE_ME"': `REMOTE_ROOT_PATH="${remotePath}"`,
-				'REMOTE_ASSETS_PATH=${REMOTE_ROOT_PATH}"REPLACE_ME"': `REMOTE_ASSETS_PATH=${REMOTE_ROOT_PATH}"www/files/"`,
+				// eslint-disable-next-line
+				'REMOTE_ASSETS_PATH=${REMOTE_ROOT_PATH}"REPLACE_ME"': 'REMOTE_ASSETS_PATH=${REMOTE_ROOT_PATH}"www/files/"',
 			});
 		}
 
