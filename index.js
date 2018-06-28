@@ -20,7 +20,7 @@ const project = (() => {
 		if (pkg && pkg.name) {
 			return pkg.name.split('/').pop();
 		}
-	} catch (e) {
+	} catch (error) {
 		return directory;
 	}
 
@@ -136,7 +136,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 
 	try {
 		await fs.appendFile('/etc/hosts', `${parsed.ip} ${localDomain}\r\n`);
-	} catch (err) {
+	} catch (error) {
 		await run(`echo "${parsed.ip} ${localDomain}" | sudo tee -a /etc/hosts`);
 	}
 
@@ -154,27 +154,39 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 	console.log('🍱 Creating .env files');
 	console.log('');
 	const dotenv = path.resolve(process.cwd(), './craft/.env');
-	await fs.copy(`${dotenv}.example`, dotenv);
-	await replaceInFile(dotenv, {
-		'SECURITY_KEY=""': `SECURITY_KEY="${securityKey}"`,
-		'DB_SERVER="localhost"': `DB_SERVER="${parsed.ip}"`,
-		'DB_USER="root"': 'DB_USER="homestead"',
-		'DB_PASSWORD=""': 'DB_PASSWORD="secret"',
-		'DB_DATABASE=""': `DB_DATABASE="${project}"`,
-	});
+
+	try {
+		await fs.copy(`${dotenv}.example`, dotenv);
+		await replaceInFile(dotenv, {
+			'SECURITY_KEY=""': `SECURITY_KEY="${securityKey}"`,
+			'DB_SERVER="localhost"': `DB_SERVER="${parsed.ip}"`,
+			'DB_USER="root"': 'DB_USER="homestead"',
+			'DB_PASSWORD=""': 'DB_PASSWORD="secret"',
+			'DB_DATABASE=""': `DB_DATABASE="${project}"`,
+		});
+	} catch (error) {
+		console.log(`	Could not create ./craft/.env at ${dotenv}`);
+		console.log('');
+	}
 
 	const dotenvsh = path.resolve(process.cwd(), './scripts/.env.sh');
-	await fs.copy(path.resolve(process.cwd(), './scripts/craft3-example.env.sh'), dotenvsh);
-	await replaceInFile(dotenvsh, {
-		'GLOBAL_CRAFT_PATH="./"': 'GLOBAL_CRAFT_PATH="./craft/"',
-		'LOCAL_ROOT_PATH="REPLACE_ME"': `LOCAL_ROOT_PATH="${process.cwd()}/"`,
-		// eslint-disable-next-line
-		'LOCAL_ASSETS_PATH=${LOCAL_ROOT_PATH}"REPLACE_ME"': 'LOCAL_ASSETS_PATH=\${LOCAL_ROOT_PATH}"files/"',
-		'LOCAL_DB_NAME="REPLACE_ME"': `LOCAL_DB_NAME="${project}"`,
-		'LOCAL_DB_PASSWORD="REPLACE_ME"': 'LOCAL_DB_PASSWORD="secret"',
-		'LOCAL_DB_USER="REPLACE_ME"': 'LOCAL_DB_USER="homestead"',
-		'LOCAL_DB_HOST="localhost"': `LOCAL_DB_HOST="${parsed.ip}"`,
-	});
+
+	try {
+		await fs.copy(path.resolve(process.cwd(), './scripts/craft3-example.env.sh'), dotenvsh);
+		await replaceInFile(dotenvsh, {
+			'GLOBAL_CRAFT_PATH="./"': 'GLOBAL_CRAFT_PATH="./craft/"',
+			'LOCAL_ROOT_PATH="REPLACE_ME"': `LOCAL_ROOT_PATH="${process.cwd()}/"`,
+			// eslint-disable-next-line
+			'LOCAL_ASSETS_PATH=${LOCAL_ROOT_PATH}"REPLACE_ME"': 'LOCAL_ASSETS_PATH=\${LOCAL_ROOT_PATH}"files/"',
+			'LOCAL_DB_NAME="REPLACE_ME"': `LOCAL_DB_NAME="${project}"`,
+			'LOCAL_DB_PASSWORD="REPLACE_ME"': 'LOCAL_DB_PASSWORD="secret"',
+			'LOCAL_DB_USER="REPLACE_ME"': 'LOCAL_DB_USER="homestead"',
+			'LOCAL_DB_HOST="localhost"': `LOCAL_DB_HOST="${parsed.ip}"`,
+		});
+	} catch (error) {
+		console.log(`	Could not create ./scripts/.env.sh at ${dotenvsh}`);
+		console.log('');
+	}
 
 	if (!securityKey) {
 		console.log('🔑 Generating security key');
