@@ -131,7 +131,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 
 	await fs.outputFile(`${homesteadPath}/Homestead.yaml`, yaml.safeDump(parsed));
 
-	console.log('📒 Updating /etc/hosts file');
+	console.log('📒 Updating /etc/hosts file (this might ask for your password)');
 	console.log('');
 
 	try {
