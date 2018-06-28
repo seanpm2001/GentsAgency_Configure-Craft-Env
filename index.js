@@ -204,7 +204,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 			'DB_USER="root"': 'DB_USER="homestead"',
 			'DB_PASSWORD=""': 'DB_PASSWORD="secret"',
 			'DB_DATABASE=""': `DB_DATABASE="${project}"`,
-			'DB_TABLE_PREFIX=""': `DB_PREFIX="${databasePrefix || ''}"`,
+			'DB_TABLE_PREFIX=""': `DB_TABLE_PREFIX="${databasePrefix || ''}"`,
 		});
 	} catch (error) {
 		console.log(`	Could not create ./craft/.env at ${dotenv}`);
