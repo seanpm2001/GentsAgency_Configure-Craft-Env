@@ -67,6 +67,20 @@ const remoteDatabase = (() => {
 	};
 })();
 
+const remotePath = (() => {
+	if (typeof argv['remote-path'] === 'string') {
+		const raw = argv['remote-path'];
+
+		if (raw.endsWith('/')) {
+			return raw;
+		}
+
+		return `${raw}/`;
+	}
+
+	return undefined;
+})();
+
 const readFile = (file) => new Promise((resolve, reject) => {
 	fs.readFile(file, 'utf8', (readErr, data) => {
 		if (readErr) {
@@ -204,7 +218,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 			'GLOBAL_CRAFT_PATH="./"': 'GLOBAL_CRAFT_PATH="./craft/"',
 			'LOCAL_ROOT_PATH="REPLACE_ME"': `LOCAL_ROOT_PATH="${process.cwd()}/"`,
 			// eslint-disable-next-line
-			'LOCAL_ASSETS_PATH=${LOCAL_ROOT_PATH}"REPLACE_ME"': 'LOCAL_ASSETS_PATH=\${LOCAL_ROOT_PATH}"files/"',
+			'LOCAL_ASSETS_PATH=${LOCAL_ROOT_PATH}"REPLACE_ME"': 'LOCAL_ASSETS_PATH=\${LOCAL_ROOT_PATH}"www/files/"',
 			'LOCAL_DB_NAME="REPLACE_ME"': `LOCAL_DB_NAME="${project}"`,
 			'LOCAL_DB_PASSWORD="REPLACE_ME"': 'LOCAL_DB_PASSWORD="secret"',
 			'LOCAL_DB_USER="REPLACE_ME"': 'LOCAL_DB_USER="homestead"',
@@ -225,6 +239,13 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 		if (databasePrefix) {
 			Object.assign(replacements, {
 				'GLOBAL_DB_TABLE_PREFIX=""': `GLOBAL_DB_TABLE_PREFIX="${databasePrefix}_"`,
+			});
+		}
+
+		if (remotePath) {
+			Object.assign(replacements, {
+				'REMOTE_ROOT_PATH="REPLACE_ME"': `REMOTE_ROOT_PATH="${remotePath}"`,
+				'REMOTE_ASSETS_PATH=${REMOTE_ROOT_PATH}"REPLACE_ME"': `REMOTE_ASSETS_PATH=${REMOTE_ROOT_PATH}"www/files/"`,
 			});
 		}
 
