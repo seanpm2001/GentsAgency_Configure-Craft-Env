@@ -42,6 +42,29 @@ const localDomain = typeof argv.domain === 'string' ? argv.domain : `${project}.
 const homesteadPath = typeof argv['homestead-path'] === 'string' ? argv['homestead-path'] : `${homedir}/homestead/Homestead`;
 const sslPath = typeof argv['ssl-path'] === 'string' ? argv['ssl-path'] : `${homedir}/.homesteadssl`;
 
+const remoteDatabase = (() => {
+	if (typeof argv['remote-db-user'] !== 'string') {
+		return undefined;
+	}
+
+	if (typeof argv['remote-db-password'] !== 'string') {
+		return undefined;
+	}
+
+	if (typeof argv['remote-db-host'] !== 'string') {
+		return undefined;
+	}
+
+	return {
+		user: argv['remote-db-user'],
+		password: argv['remote-db-password'],
+		host: argv['remote-db-host'],
+		name: typeof argv['remote-db-name'] === 'string' ? argv['remote-db-name'] : project,
+		port: typeof argv['remote-db-port'] === 'number' ? argv['remote-db-port'] : 3306,
+		schema: typeof argv['remote-db-schema'] === 'string' ? argv['remote-db-schema'] : 'public',
+	};
+})();
+
 const readFile = (file) => new Promise((resolve, reject) => {
 	fs.readFile(file, 'utf8', (readErr, data) => {
 		if (readErr) {
@@ -173,7 +196,8 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 
 	try {
 		await fs.copy(path.resolve(process.cwd(), './scripts/craft3-example.env.sh'), dotenvsh);
-		await replaceInFile(dotenvsh, {
+
+		const replacements = {
 			'GLOBAL_CRAFT_PATH="./"': 'GLOBAL_CRAFT_PATH="./craft/"',
 			'LOCAL_ROOT_PATH="REPLACE_ME"': `LOCAL_ROOT_PATH="${process.cwd()}/"`,
 			// eslint-disable-next-line
@@ -182,7 +206,20 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 			'LOCAL_DB_PASSWORD="REPLACE_ME"': 'LOCAL_DB_PASSWORD="secret"',
 			'LOCAL_DB_USER="REPLACE_ME"': 'LOCAL_DB_USER="homestead"',
 			'LOCAL_DB_HOST="localhost"': `LOCAL_DB_HOST="${parsed.ip}"`,
-		});
+		};
+
+		if (remoteDatabase) {
+			Object.assign(replacements, {
+				'REMOTE_DB_NAME="REPLACE_ME"': `REMOTE_DB_NAME="${remoteDatabase.name}"`,
+				'REMOTE_DB_PASSWORD="REPLACE_ME"': `REMOTE_DB_PASSWORD="${remoteDatabase.password}"`,
+				'REMOTE_DB_USER="REPLACE_ME"': `REMOTE_DB_USER="${remoteDatabase.user}"`,
+				'REMOTE_DB_HOST="localhost"': `REMOTE_DB_HOST="${remoteDatabase.host}"`,
+				'REMOTE_DB_PORT="3306"': `REMOTE_DB_PORT="${remoteDatabase.port}"`,
+				'REMOTE_DB_SCHEMA="public"': `REMOTE_DB_SCHEMA="${remoteDatabase.schema}"`,
+			});
+		}
+
+		await replaceInFile(dotenvsh, replacements);
 	} catch (error) {
 		console.log(`	Could not create ./scripts/.env.sh at ${dotenvsh}`);
 		console.log('');
