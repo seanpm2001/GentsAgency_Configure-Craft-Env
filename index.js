@@ -271,7 +271,14 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 	if (!securityKey) {
 		console.log('🔑 Generating security key');
 		console.log('');
-		await run('./craft/craft setup/security-key', { cwd: process.cwd() });
+
+		try {
+			await run('./craft/craft setup/security-key', { cwd: process.cwd() });
+		} catch (error) {
+			console.log('    Could not generate a security key');
+			console.log('    Please make sure `./craft/craft is executable');
+			console.log('');
+		}
 	}
 
 	console.log('🌎 Get ready to rumble!');
