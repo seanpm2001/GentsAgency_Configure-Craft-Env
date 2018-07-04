@@ -1,6 +1,6 @@
 {
   "name": "@gentsagency/configure-craft-env",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "One-off runner to add a Craft site to your development environment",
   "bin": "index.js",
   "main": "index.js",
