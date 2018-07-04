@@ -126,6 +126,15 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 	console.log(`      ${homesteadPath}`);
 	console.log('');
 
+	console.log('📦 Installing all dependencies');
+	console.log('');
+	await Promise.all([
+		Promise.resolve(run('composer install > /dev/null 2>&1', { cwd: path.resolve(process.cwd(), './craft') })),
+		run('stat package.json > /dev/null 2>&1')
+			.then(() => run('npm i > /dev/null 2>&1'))
+			.catch(() => Promise.resolve()),
+	]);
+
 	console.log('🚜 Configuring Homestead');
 	console.log('');
 	const config = await readFile(`${homesteadPath}/Homestead.yaml`);
