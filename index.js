@@ -129,7 +129,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 	console.log('📦 Installing all dependencies');
 	console.log('');
 	await Promise.all([
-		Promise.resolve(run('composer install > /dev/null 2>&1', { cwd: path.resolve(process.cwd(), './craft') })),
+		run('composer install > /dev/null 2>&1', { cwd: path.resolve(process.cwd(), './craft') }).catch(() => Promise.resolve()),
 		run('stat package.json > /dev/null 2>&1')
 			.then(() => run('npm i > /dev/null 2>&1'))
 			.catch(() => Promise.resolve()),
