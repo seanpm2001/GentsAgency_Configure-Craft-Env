@@ -168,6 +168,7 @@ const replaceInFile = (file, replacements = {}) => new Promise((resolve, reject)
 		parsed.sites.push({
 			map: localDomain,
 			to: `/home/vagrant/homestead/${project}/www`,
+			type: 'apache',
 		});
 	}
 
